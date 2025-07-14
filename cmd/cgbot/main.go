@@ -5,18 +5,17 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/go-faster/sdk/app"
-	"go.uber.org/zap"
-
 	entdb "github.com/cydev/cgbot/internal/db"
 	"github.com/cydev/cgbot/internal/ent"
-
 	"github.com/go-faster/errors"
+	"github.com/go-faster/sdk/app"
 	"github.com/go-faster/sdk/zctx"
 	"github.com/gotd/contrib/middleware/floodwait"
 	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/telegram/message"
 	"github.com/gotd/td/tg"
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 )
 
 type Application struct {
@@ -96,6 +95,45 @@ func (a *Application) onChannelParticipant(ctx context.Context, e tg.Entities, u
 			for _, c := range e.Channels {
 				return a.removeChannel(ctx, c)
 			}
+		}
+	}
+	return nil
+}
+
+func (a *Application) onNewMessage(ctx context.Context, e tg.Entities, u *tg.UpdateNewMessage) error {
+	ctx, span := a.trace.Start(ctx, "OnNewMessage")
+	defer span.End()
+	m, ok := u.Message.(*tg.Message)
+	if !ok || m.Out {
+		return nil
+	}
+	var (
+		sender = message.NewSender(a.api)
+		reply  = sender.Reply(e, u)
+		lg     = zctx.From(ctx).With(zap.Int("msg.id", m.ID))
+	)
+	peerUser, ok := m.PeerID.(*tg.PeerUser)
+	if !ok {
+		if _, err := reply.Text(ctx, "Invalid"); err != nil {
+			return err
+		}
+		return nil
+	}
+	user := e.Users[peerUser.UserID]
+	if user == nil {
+		return nil
+	}
+	lg.Info("New message",
+		zap.String("text", m.Message),
+		zap.String("user", user.Username),
+		zap.String("first_name", user.FirstName),
+		zap.String("last_name", user.LastName),
+		zap.Int64("user_id", user.ID),
+	)
+	switch {
+	case m.Message == "/start":
+		if _, err := reply.Text(ctx, "Hello, "+user.FirstName+"!"); err != nil {
+			return errors.Wrap(err, "send message")
 		}
 	}
 	return nil
