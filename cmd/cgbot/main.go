@@ -5,10 +5,11 @@ import (
 	"os"
 	"strconv"
 
-	entdb "github.com/cydev/cgbot/internal/db"
-	"github.com/cydev/cgbot/internal/ent"
 	"github.com/go-faster/sdk/app"
 	"go.uber.org/zap"
+
+	entdb "github.com/cydev/cgbot/internal/db"
+	"github.com/cydev/cgbot/internal/ent"
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/sdk/zctx"
@@ -21,7 +22,7 @@ import (
 type Application struct {
 	db     *ent.Client
 	api    *tg.Client
-	client *telegram.Client "go.uber.org/zap"
+	client *telegram.Client
 
 	waiter *floodwait.Waiter
 	trace  trace.Tracer

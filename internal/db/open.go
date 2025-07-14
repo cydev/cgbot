@@ -8,11 +8,12 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/XSAM/otelsql"
-	"github.com/cydev/cgbot/internal/ent"
 	"github.com/go-faster/errors"
 	"github.com/go-faster/sdk/app"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
+
+	"github.com/cydev/cgbot/internal/ent"
 )
 
 // Open new connection.

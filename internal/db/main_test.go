@@ -5,12 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cydev/cgbot/internal/ent"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	"github.com/cydev/cgbot/internal/ent"
 )
 
 type DBTestSuite struct {

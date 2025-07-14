@@ -4,9 +4,10 @@ import (
 	"context"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/cydev/cgbot/internal/ent"
 	"github.com/go-faster/errors"
 	"github.com/gotd/td/session"
+
+	"github.com/cydev/cgbot/internal/ent"
 )
 
 type SessionStorage struct {

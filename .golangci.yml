@@ -103,6 +103,9 @@ linters:
       - linters:
           - revive
         text: comment on exported const .+ should be of the form
+      - linters: [gocritic]
+        source: "(suite|ent)"
+        text: "importShadow"
 formatters:
   enable:
     - gofmt
