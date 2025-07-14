@@ -5,8 +5,6 @@ import (
 	"os"
 	"strconv"
 
-	entdb "github.com/cydev/cgbot/internal/db"
-	"github.com/cydev/cgbot/internal/ent"
 	"github.com/go-faster/errors"
 	"github.com/go-faster/sdk/app"
 	"github.com/go-faster/sdk/zctx"
@@ -16,6 +14,9 @@ import (
 	"github.com/gotd/td/tg"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
+
+	entdb "github.com/cydev/cgbot/internal/db"
+	"github.com/cydev/cgbot/internal/ent"
 )
 
 type Application struct {
@@ -138,8 +139,8 @@ func (a *Application) onNewMessage(ctx context.Context, e tg.Entities, u *tg.Upd
 		zap.String("last_name", user.LastName),
 		zap.Int64("user_id", user.ID),
 	)
-	switch {
-	case m.Message == "/start":
+	switch m.Message {
+	case "/start":
 		if _, err := reply.Text(ctx, "Hello, "+user.FirstName+"!"); err != nil {
 			return errors.Wrap(err, "send message")
 		}
