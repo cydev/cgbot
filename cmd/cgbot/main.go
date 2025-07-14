@@ -184,6 +184,7 @@ func main() {
 			trace:  t.TracerProvider().Tracer("recam.bot"),
 		}
 		dispatcher.OnChannelParticipant(a.onChannelParticipant)
+		dispatcher.OnNewMessage(a.onNewMessage)
 		return a.Run(ctx)
 	})
 }
