@@ -38,6 +38,14 @@ func (a *Application) Run(ctx context.Context) error {
 			} else {
 				lg.Info("Already authenticated")
 			}
+			if self, err := a.client.Self(ctx); err == nil {
+				lg.Info("Bot info",
+					zap.Int64("id", self.ID),
+					zap.String("username", self.Username),
+					zap.String("first_name", self.FirstName),
+					zap.String("last_name", self.LastName),
+				)
+			}
 			if _, err := a.api.BotsSetBotCommands(ctx, &tg.BotsSetBotCommandsRequest{
 				Scope:    &tg.BotCommandScopeDefault{},
 				LangCode: "en",
