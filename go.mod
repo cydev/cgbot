@@ -1,6 +1,6 @@
 module github.com/cydev/cgbot
 
-go 1.24
+go 1.24.0
 
 tool (
 	entgo.io/ent/cmd/ent
