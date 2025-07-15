@@ -186,6 +186,8 @@ func (a *Application) onNewMessage(ctx context.Context, e tg.Entities, u *tg.Upd
 			lg.Error("Unexpected response type",
 				zap.Any("value", res),
 				zap.String("type", fmt.Sprintf("%T", res)),
+				zap.String("gameName", gameName),
+				zap.String("tagLine", tagLine),
 			)
 			if _, err := reply.Text(ctx, "Unexpected response type"); err != nil {
 				return errors.Wrap(err, "send message")
