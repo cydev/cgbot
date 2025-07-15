@@ -169,7 +169,7 @@ func (a *Application) onNewMessage(ctx context.Context, e tg.Entities, u *tg.Upd
 		}
 		res, err := a.api.AccountV1GetByRiotId(ctx, oas.AccountV1GetByRiotIdParams{
 			GameName: gameName,
-			TagLine:  "#" + tagLine,
+			TagLine:  tagLine,
 		})
 		if err != nil {
 			if _, err := reply.Text(ctx, "Error: "+err.Error()); err != nil {
