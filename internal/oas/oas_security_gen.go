@@ -40,6 +40,82 @@ func findAuthorization(h http.Header, prefix string) (string, bool) {
 	return "", false
 }
 
+var operationRolesXRiotToken = map[string][]string{
+	AccountV1GetActiveRegionOperation:                        []string{},
+	AccountV1GetActiveShardOperation:                         []string{},
+	AccountV1GetByPuuidOperation:                             []string{},
+	AccountV1GetByRiotIdOperation:                            []string{},
+	ChampionMasteryV4GetAllChampionMasteriesByPUUIDOperation: []string{},
+	ChampionMasteryV4GetChampionMasteryByPUUIDOperation:      []string{},
+	ChampionMasteryV4GetChampionMasteryScoreByPUUIDOperation: []string{},
+	ChampionMasteryV4GetTopChampionMasteriesByPUUIDOperation: []string{},
+	ChampionV3GetChampionInfoOperation:                       []string{},
+	ClashV1GetPlayersByPUUIDOperation:                        []string{},
+	ClashV1GetTeamByIdOperation:                              []string{},
+	ClashV1GetTournamentByIdOperation:                        []string{},
+	ClashV1GetTournamentByTeamOperation:                      []string{},
+	ClashV1GetTournamentsOperation:                           []string{},
+	LeagueExpV4GetLeagueEntriesOperation:                     []string{},
+	LeagueV4GetChallengerLeagueOperation:                     []string{},
+	LeagueV4GetGrandmasterLeagueOperation:                    []string{},
+	LeagueV4GetLeagueByIdOperation:                           []string{},
+	LeagueV4GetLeagueEntriesOperation:                        []string{},
+	LeagueV4GetLeagueEntriesByPUUIDOperation:                 []string{},
+	LeagueV4GetMasterLeagueOperation:                         []string{},
+	LolChallengesV1GetAllChallengeConfigsOperation:           []string{},
+	LolChallengesV1GetAllChallengePercentilesOperation:       []string{},
+	LolChallengesV1GetChallengeConfigsOperation:              []string{},
+	LolChallengesV1GetChallengeLeaderboardsOperation:         []string{},
+	LolChallengesV1GetChallengePercentilesOperation:          []string{},
+	LolChallengesV1GetPlayerDataOperation:                    []string{},
+	LolStatusV4GetPlatformDataOperation:                      []string{},
+	LorMatchV1GetMatchOperation:                              []string{},
+	LorMatchV1GetMatchIdsByPUUIDOperation:                    []string{},
+	LorRankedV1GetLeaderboardsOperation:                      []string{},
+	LorStatusV1GetPlatformDataOperation:                      []string{},
+	MatchV5GetMatchOperation:                                 []string{},
+	MatchV5GetMatchIdsByPUUIDOperation:                       []string{},
+	MatchV5GetTimelineOperation:                              []string{},
+	SpectatorTftV5GetCurrentGameInfoByPuuidOperation:         []string{},
+	SpectatorTftV5GetFeaturedGamesOperation:                  []string{},
+	SpectatorV5GetCurrentGameInfoByPuuidOperation:            []string{},
+	SpectatorV5GetFeaturedGamesOperation:                     []string{},
+	SummonerV4GetByPUUIDOperation:                            []string{},
+	TftLeagueV1GetChallengerLeagueOperation:                  []string{},
+	TftLeagueV1GetGrandmasterLeagueOperation:                 []string{},
+	TftLeagueV1GetLeagueByIdOperation:                        []string{},
+	TftLeagueV1GetLeagueEntriesOperation:                     []string{},
+	TftLeagueV1GetLeagueEntriesByPUUIDOperation:              []string{},
+	TftLeagueV1GetMasterLeagueOperation:                      []string{},
+	TftLeagueV1GetTopRatedLadderOperation:                    []string{},
+	TftMatchV1GetMatchOperation:                              []string{},
+	TftMatchV1GetMatchIdsByPUUIDOperation:                    []string{},
+	TftStatusV1GetPlatformDataOperation:                      []string{},
+	TftSummonerV1GetByPUUIDOperation:                         []string{},
+	TournamentStubV5CreateTournamentCodeOperation:            []string{},
+	TournamentStubV5GetLobbyEventsByCodeOperation:            []string{},
+	TournamentStubV5GetTournamentCodeOperation:               []string{},
+	TournamentStubV5RegisterProviderDataOperation:            []string{},
+	TournamentStubV5RegisterTournamentOperation:              []string{},
+	TournamentV5CreateTournamentCodeOperation:                []string{},
+	TournamentV5GetGamesOperation:                            []string{},
+	TournamentV5GetLobbyEventsByCodeOperation:                []string{},
+	TournamentV5GetTournamentCodeOperation:                   []string{},
+	TournamentV5RegisterProviderDataOperation:                []string{},
+	TournamentV5RegisterTournamentOperation:                  []string{},
+	TournamentV5UpdateCodeOperation:                          []string{},
+	ValConsoleMatchV1GetMatchOperation:                       []string{},
+	ValConsoleMatchV1GetMatchlistOperation:                   []string{},
+	ValConsoleMatchV1GetRecentOperation:                      []string{},
+	ValConsoleRankedV1GetLeaderboardOperation:                []string{},
+	ValContentV1GetContentOperation:                          []string{},
+	ValMatchV1GetMatchOperation:                              []string{},
+	ValMatchV1GetMatchlistOperation:                          []string{},
+	ValMatchV1GetRecentOperation:                             []string{},
+	ValRankedV1GetLeaderboardOperation:                       []string{},
+	ValStatusV1GetPlatformDataOperation:                      []string{},
+}
+
 func (s *Server) securityXRiotToken(ctx context.Context, operationName OperationName, req *http.Request) (context.Context, bool, error) {
 	var t XRiotToken
 	const parameterName = "X-Riot-Token"
@@ -48,6 +124,7 @@ func (s *Server) securityXRiotToken(ctx context.Context, operationName Operation
 		return ctx, false, nil
 	}
 	t.APIKey = value
+	t.Roles = operationRolesXRiotToken[operationName]
 	rctx, err := s.sec.HandleXRiotToken(ctx, operationName, t)
 	if errors.Is(err, ogenerrors.ErrSkipServerSecurity) {
 		return nil, false, nil
@@ -56,6 +133,83 @@ func (s *Server) securityXRiotToken(ctx context.Context, operationName Operation
 	}
 	return rctx, true, err
 }
+
+var operationRolesAPIKey = map[string][]string{
+	AccountV1GetActiveRegionOperation:                        []string{},
+	AccountV1GetActiveShardOperation:                         []string{},
+	AccountV1GetByPuuidOperation:                             []string{},
+	AccountV1GetByRiotIdOperation:                            []string{},
+	ChampionMasteryV4GetAllChampionMasteriesByPUUIDOperation: []string{},
+	ChampionMasteryV4GetChampionMasteryByPUUIDOperation:      []string{},
+	ChampionMasteryV4GetChampionMasteryScoreByPUUIDOperation: []string{},
+	ChampionMasteryV4GetTopChampionMasteriesByPUUIDOperation: []string{},
+	ChampionV3GetChampionInfoOperation:                       []string{},
+	ClashV1GetPlayersByPUUIDOperation:                        []string{},
+	ClashV1GetTeamByIdOperation:                              []string{},
+	ClashV1GetTournamentByIdOperation:                        []string{},
+	ClashV1GetTournamentByTeamOperation:                      []string{},
+	ClashV1GetTournamentsOperation:                           []string{},
+	LeagueExpV4GetLeagueEntriesOperation:                     []string{},
+	LeagueV4GetChallengerLeagueOperation:                     []string{},
+	LeagueV4GetGrandmasterLeagueOperation:                    []string{},
+	LeagueV4GetLeagueByIdOperation:                           []string{},
+	LeagueV4GetLeagueEntriesOperation:                        []string{},
+	LeagueV4GetLeagueEntriesByPUUIDOperation:                 []string{},
+	LeagueV4GetMasterLeagueOperation:                         []string{},
+	LolChallengesV1GetAllChallengeConfigsOperation:           []string{},
+	LolChallengesV1GetAllChallengePercentilesOperation:       []string{},
+	LolChallengesV1GetChallengeConfigsOperation:              []string{},
+	LolChallengesV1GetChallengeLeaderboardsOperation:         []string{},
+	LolChallengesV1GetChallengePercentilesOperation:          []string{},
+	LolChallengesV1GetPlayerDataOperation:                    []string{},
+	LolStatusV4GetPlatformDataOperation:                      []string{},
+	LorMatchV1GetMatchOperation:                              []string{},
+	LorMatchV1GetMatchIdsByPUUIDOperation:                    []string{},
+	LorRankedV1GetLeaderboardsOperation:                      []string{},
+	LorStatusV1GetPlatformDataOperation:                      []string{},
+	MatchV5GetMatchOperation:                                 []string{},
+	MatchV5GetMatchIdsByPUUIDOperation:                       []string{},
+	MatchV5GetTimelineOperation:                              []string{},
+	SpectatorTftV5GetCurrentGameInfoByPuuidOperation:         []string{},
+	SpectatorTftV5GetFeaturedGamesOperation:                  []string{},
+	SpectatorV5GetCurrentGameInfoByPuuidOperation:            []string{},
+	SpectatorV5GetFeaturedGamesOperation:                     []string{},
+	SummonerV4GetByPUUIDOperation:                            []string{},
+	TftLeagueV1GetChallengerLeagueOperation:                  []string{},
+	TftLeagueV1GetGrandmasterLeagueOperation:                 []string{},
+	TftLeagueV1GetLeagueByIdOperation:                        []string{},
+	TftLeagueV1GetLeagueEntriesOperation:                     []string{},
+	TftLeagueV1GetLeagueEntriesByPUUIDOperation:              []string{},
+	TftLeagueV1GetMasterLeagueOperation:                      []string{},
+	TftLeagueV1GetTopRatedLadderOperation:                    []string{},
+	TftMatchV1GetMatchOperation:                              []string{},
+	TftMatchV1GetMatchIdsByPUUIDOperation:                    []string{},
+	TftStatusV1GetPlatformDataOperation:                      []string{},
+	TftSummonerV1GetByPUUIDOperation:                         []string{},
+	TournamentStubV5CreateTournamentCodeOperation:            []string{},
+	TournamentStubV5GetLobbyEventsByCodeOperation:            []string{},
+	TournamentStubV5GetTournamentCodeOperation:               []string{},
+	TournamentStubV5RegisterProviderDataOperation:            []string{},
+	TournamentStubV5RegisterTournamentOperation:              []string{},
+	TournamentV5CreateTournamentCodeOperation:                []string{},
+	TournamentV5GetGamesOperation:                            []string{},
+	TournamentV5GetLobbyEventsByCodeOperation:                []string{},
+	TournamentV5GetTournamentCodeOperation:                   []string{},
+	TournamentV5RegisterProviderDataOperation:                []string{},
+	TournamentV5RegisterTournamentOperation:                  []string{},
+	TournamentV5UpdateCodeOperation:                          []string{},
+	ValConsoleMatchV1GetMatchOperation:                       []string{},
+	ValConsoleMatchV1GetMatchlistOperation:                   []string{},
+	ValConsoleMatchV1GetRecentOperation:                      []string{},
+	ValConsoleRankedV1GetLeaderboardOperation:                []string{},
+	ValContentV1GetContentOperation:                          []string{},
+	ValMatchV1GetMatchOperation:                              []string{},
+	ValMatchV1GetMatchlistOperation:                          []string{},
+	ValMatchV1GetRecentOperation:                             []string{},
+	ValRankedV1GetLeaderboardOperation:                       []string{},
+	ValStatusV1GetPlatformDataOperation:                      []string{},
+}
+
 func (s *Server) securityAPIKey(ctx context.Context, operationName OperationName, req *http.Request) (context.Context, bool, error) {
 	var t APIKey
 	const parameterName = "api_key"
@@ -65,6 +219,7 @@ func (s *Server) securityAPIKey(ctx context.Context, operationName OperationName
 	}
 	value := q.Get(parameterName)
 	t.APIKey = value
+	t.Roles = operationRolesAPIKey[operationName]
 	rctx, err := s.sec.HandleAPIKey(ctx, operationName, t)
 	if errors.Is(err, ogenerrors.ErrSkipServerSecurity) {
 		return nil, false, nil
