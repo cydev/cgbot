@@ -220,7 +220,7 @@ func (s *securityProvider) XRiotToken(ctx context.Context, operationName oas.Ope
 
 func main() {
 	app.Run(func(ctx context.Context, lg *zap.Logger, t *app.Telemetry) error {
-		riotAPI, err := oas.NewClient("https://developer.riotgames.com/apis",
+		riotAPI, err := oas.NewClient("https://europe.api.riotgames.com",
 			&securityProvider{},
 			oas.WithMeterProvider(t.MeterProvider()),
 			oas.WithTracerProvider(t.TracerProvider()),
