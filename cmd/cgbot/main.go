@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -184,6 +185,7 @@ func (a *Application) onNewMessage(ctx context.Context, e tg.Entities, u *tg.Upd
 		default:
 			lg.Error("Unexpected response type",
 				zap.Any("value", res),
+				zap.String("type", fmt.Sprintf("%T", res)),
 			)
 			if _, err := reply.Text(ctx, "Unexpected response type"); err != nil {
 				return errors.Wrap(err, "send message")
