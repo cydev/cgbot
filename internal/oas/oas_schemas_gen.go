@@ -8,6 +8,7 @@ import (
 
 type APIKey struct {
 	APIKey string
+	Roles  []string
 }
 
 // GetAPIKey returns the value of APIKey.
@@ -15,9 +16,19 @@ func (s *APIKey) GetAPIKey() string {
 	return s.APIKey
 }
 
+// GetRoles returns the value of Roles.
+func (s *APIKey) GetRoles() []string {
+	return s.Roles
+}
+
 // SetAPIKey sets the value of APIKey.
 func (s *APIKey) SetAPIKey(val string) {
 	s.APIKey = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *APIKey) SetRoles(val []string) {
+	s.Roles = val
 }
 
 // Ref: #/components/schemas/account-v1.AccountDto
@@ -27044,6 +27055,7 @@ func (s *ValStatusV1UpdateDtoPublishLocationsItem) UnmarshalText(data []byte) er
 
 type XRiotToken struct {
 	APIKey string
+	Roles  []string
 }
 
 // GetAPIKey returns the value of APIKey.
@@ -27051,7 +27063,17 @@ func (s *XRiotToken) GetAPIKey() string {
 	return s.APIKey
 }
 
+// GetRoles returns the value of Roles.
+func (s *XRiotToken) GetRoles() []string {
+	return s.Roles
+}
+
 // SetAPIKey sets the value of APIKey.
 func (s *XRiotToken) SetAPIKey(val string) {
 	s.APIKey = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *XRiotToken) SetRoles(val []string) {
+	s.Roles = val
 }
