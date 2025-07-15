@@ -206,12 +206,12 @@ func (s *securityProvider) APIKey(ctx context.Context, operationName oas.Operati
 
 // Rso implements oas.SecuritySource.
 func (s *securityProvider) Rso(ctx context.Context, operationName oas.OperationName) (oas.Rso, error) {
-	panic("unimplemented")
+	return oas.Rso{}, nil
 }
 
 // XRiotToken implements oas.SecuritySource.
 func (s *securityProvider) XRiotToken(ctx context.Context, operationName oas.OperationName) (oas.XRiotToken, error) {
-	panic("unimplemented")
+	return oas.XRiotToken{}, nil
 }
 
 func main() {
