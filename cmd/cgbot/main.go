@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/sdk/app"
@@ -17,11 +18,13 @@ import (
 
 	entdb "github.com/cydev/cgbot/internal/db"
 	"github.com/cydev/cgbot/internal/ent"
+	"github.com/cydev/cgbot/internal/oas"
 )
 
 type Application struct {
 	db     *ent.Client
-	api    *tg.Client
+	tg     *tg.Client
+	api    *oas.Client
 	client *telegram.Client
 
 	waiter *floodwait.Waiter
@@ -47,7 +50,7 @@ func (a *Application) Run(ctx context.Context) error {
 					zap.String("last_name", self.LastName),
 				)
 			}
-			if _, err := a.api.BotsSetBotCommands(ctx, &tg.BotsSetBotCommandsRequest{
+			if _, err := a.tg.BotsSetBotCommands(ctx, &tg.BotsSetBotCommandsRequest{
 				Scope:    &tg.BotCommandScopeDefault{},
 				LangCode: "en",
 				Commands: []tg.BotCommand{
@@ -117,7 +120,7 @@ func (a *Application) onNewMessage(ctx context.Context, e tg.Entities, u *tg.Upd
 		return nil
 	}
 	var (
-		sender = message.NewSender(a.api)
+		sender = message.NewSender(a.tg)
 		reply  = sender.Reply(e, u)
 		lg     = zctx.From(ctx).With(zap.Int("msg.id", m.ID))
 	)
@@ -139,17 +142,88 @@ func (a *Application) onNewMessage(ctx context.Context, e tg.Entities, u *tg.Upd
 		zap.String("last_name", user.LastName),
 		zap.Int64("user_id", user.ID),
 	)
-	switch m.Message {
-	case "/start":
+	switch {
+	case m.Message == "/start":
 		if _, err := reply.Text(ctx, "Hello, "+user.FirstName+"!"); err != nil {
 			return errors.Wrap(err, "send message")
+		}
+	case strings.HasPrefix(m.Message, "/profile"):
+		// /profile <gameName>#<tagLine>
+		parts := strings.SplitN(m.Message, " ", 2)
+		if len(parts) < 2 {
+			if _, err := reply.Text(ctx, "Usage: /profile <gameName>#<tagLine>"); err != nil {
+				return errors.Wrap(err, "send message")
+			}
+			return nil
+		}
+		gameName, tagLine := parts[1], ""
+		if idx := strings.Index(gameName, "#"); idx != -1 {
+			tagLine = gameName[idx+1:]
+			gameName = gameName[:idx]
+		}
+		if tagLine == "" {
+			if _, err := reply.Text(ctx, "Usage: /profile <gameName>#<tagLine>"); err != nil {
+				return errors.Wrap(err, "send message")
+			}
+		}
+		res, err := a.api.AccountV1GetByRiotId(ctx, oas.AccountV1GetByRiotIdParams{
+			GameName: gameName,
+			TagLine:  tagLine,
+		})
+		if err != nil {
+			if _, err := reply.Text(ctx, "Error: "+err.Error()); err != nil {
+				return errors.Wrap(err, "send message")
+			}
+			return nil
+		}
+		switch res := res.(type) {
+		case *oas.AccountV1AccountDto:
+			if _, err := reply.Text(ctx, "Account found: "+res.Puuid); err != nil {
+				return errors.Wrap(err, "send message")
+			}
+		default:
+			lg.Error("Unexpected response type",
+				zap.Any("value", res),
+			)
+			if _, err := reply.Text(ctx, "Unexpected response type"); err != nil {
+				return errors.Wrap(err, "send message")
+			}
 		}
 	}
 	return nil
 }
 
+var _ oas.SecuritySource = (*securityProvider)(nil)
+
+type securityProvider struct{}
+
+// APIKey implements oas.SecuritySource.
+func (s *securityProvider) APIKey(ctx context.Context, operationName oas.OperationName) (oas.APIKey, error) {
+	return oas.APIKey{
+		APIKey: os.Getenv("RIOT_API_KEY"),
+	}, nil
+}
+
+// Rso implements oas.SecuritySource.
+func (s *securityProvider) Rso(ctx context.Context, operationName oas.OperationName) (oas.Rso, error) {
+	panic("unimplemented")
+}
+
+// XRiotToken implements oas.SecuritySource.
+func (s *securityProvider) XRiotToken(ctx context.Context, operationName oas.OperationName) (oas.XRiotToken, error) {
+	panic("unimplemented")
+}
+
 func main() {
 	app.Run(func(ctx context.Context, lg *zap.Logger, t *app.Telemetry) error {
+		riotAPI, err := oas.NewClient("https://developer.riotgames.com/apis",
+			&securityProvider{},
+			oas.WithMeterProvider(t.MeterProvider()),
+			oas.WithTracerProvider(t.TracerProvider()),
+		)
+		if err != nil {
+			return errors.Wrap(err, "create riot api client")
+		}
 		db, err := entdb.Open(ctx, os.Getenv("DATABASE_URL"), t)
 		if err != nil {
 			return errors.Wrap(err, "open database")
@@ -179,7 +253,8 @@ func main() {
 		})
 		a := &Application{
 			db:     db,
-			api:    tg.NewClient(client),
+			tg:     tg.NewClient(client),
+			api:    riotAPI,
 			client: client,
 			waiter: waiter,
 			trace:  t.TracerProvider().Tracer("recam.bot"),
