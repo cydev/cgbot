@@ -18,7 +18,7 @@ require (
 	github.com/gotd/contrib v0.21.0
 	github.com/gotd/td v0.127.0
 	github.com/jackc/pgx/v5 v5.7.5
-	github.com/ogen-go/ogen v1.12.0
+	github.com/ogen-go/ogen v1.14.0
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.37.0
 	go.opentelemetry.io/otel v1.37.0
