@@ -15,7 +15,7 @@ jobs:
       FIRST_COMMIT_SHA: 55f96e52cfc4d7ba12ff600071013095b397e8a1
     steps:
       - name: 'Checkout Repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v4
         with:
